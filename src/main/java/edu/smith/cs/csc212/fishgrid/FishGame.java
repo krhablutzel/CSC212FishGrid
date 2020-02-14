@@ -15,14 +15,22 @@ public class FishGame {
 	 * This is the world in which the fish are missing. (It's mostly a List!).
 	 */
 	World world;
+	
 	/**
 	 * The player (a Fish.COLORS[0]-colored fish) goes seeking their friends.
 	 */
 	Fish player;
+	
 	/**
 	 * The home location.
 	 */
 	FishHome home;
+	
+	/**
+	 * Number of rocks
+	 */
+	public static final int NUM_ROCKS = 10;
+	
 	/**
 	 * These are the missing fish!
 	 */
@@ -57,13 +65,13 @@ public class FishGame {
 		// Add a home!
 		home = world.insertFishHome();
 		
-		// TODO(lab) Generate some more rocks!
-		// TODO(lab) Make 5 into a constant, so it's easier to find & change.
-		for (int i=0; i<5; i++) {
+		// Make the rocks!
+		for (int i=0; i<NUM_ROCKS; i++) {
 			world.insertRockRandomly();
 		}
 		
-		// TODO(lab) Make the snail!
+		// Make the snail!
+		world.insertSnailRandomly();
 		
 		// Make the player out of the 0th fish color.
 		player = new Fish(0, world);
@@ -119,9 +127,9 @@ public class FishGame {
 				// Convince Java it's a Fish (we know it is!)
 				Fish justFound = (Fish) wo;
 				
-				// Remove from world.
-				// TODO(lab): add to found instead! (So we see objectsFollow work!)
-				justFound.remove();
+				// Add to found; take from missing
+				found.add(justFound);
+				missing.remove(justFound);
 				
 				// Increase score when you find a fish!
 				score += 10;
@@ -142,9 +150,16 @@ public class FishGame {
 	private void wanderMissingFish() {
 		Random rand = ThreadLocalRandom.current();
 		for (Fish lost : missing) {
-			// 30% of the time, lost fish move randomly.
-			if (rand.nextDouble() < 0.3) {
-				// TODO(lab): What goes here?
+			double moveProb;
+			if (lost.fastScared) {
+				// fastScared fish move randomly 80% of the time
+				moveProb = 0.8;
+			} else {
+				// not fastScared fish move randomly 30% of the time
+				moveProb = 0.3;
+			}
+			if (rand.nextDouble() < moveProb) {
+				lost.moveRandomly();
 			}
 		}
 	}
