@@ -18,14 +18,26 @@ public class Fish extends WorldObject {
 	static Color[] COLORS = {
 			Color.red,
 			Color.green,
-			Color.yellow
-			// TODO: (lab) Add more colors.
+			Color.yellow,
+			Color.magenta,
+			Color.blue,
+			Color.cyan,
+			Color.gray,
+			Color.darkGray,
+			Color.lightGray,
+			Color.orange,
+			Color.pink
 			// TODO: (FishGrid) Maybe make a special fish that is more points?
 	};
 	/**
 	 * This is an index into the {@link #COLORS} array.
 	 */
 	int color;
+	/**
+	 * Whether fish is fast/hard or not
+	 */
+	boolean fastScared;
+	
 	/**
 	 * Whether or not this is the player;
 	 */
@@ -47,6 +59,13 @@ public class Fish extends WorldObject {
 	public Fish(int color, World world) {
 		super(world);
 		this.color = color;
+		// probability of being fastScared (harder to catch)
+		if (rand.nextDouble() < 0.2) {
+			this.fastScared = true;
+		} else {
+			this.fastScared = false;
+		}
+		
 	}
 	
 	/**

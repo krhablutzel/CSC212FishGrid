@@ -14,16 +14,18 @@ import me.jjfoley.gfx.TextBox;
  * about modifying this file at all for the assignment besides the very first lab-based comments.
  * 
  * @author jfoley
+ * 
+ * Note: Lab buddy was Kaia Cormier.
  */
 public class Main extends GFX {
 	/**
-	 * Game size (visual). TODO(lab) Try changing this to 600.
+	 * Game size (visual). 
 	 */
-	public static int VISUAL_GRID_SIZE = 400;
+	public static int VISUAL_GRID_SIZE = 600;
 	/**
-	 * Game size (logical). TODO(lab) Try changing this to 15 or so.
+	 * Game size (logical).
 	 */
-	public static int LOGICAL_GRID_SIZE = 10;
+	public static int LOGICAL_GRID_SIZE = 16;
 	/**
 	 * The words appear in the top part of the screen.
 	 */
