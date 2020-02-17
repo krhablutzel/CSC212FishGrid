@@ -11,6 +11,9 @@ import java.awt.Graphics2D;
  *
  */
 public class Heart extends WorldObject {
+	
+	// player receives 20 points for collecting heart
+	static int points = 20;
 
 	public Heart(World world) {
 		super(world);

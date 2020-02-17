@@ -13,31 +13,33 @@ import java.awt.geom.Ellipse2D;
  */
 public class Fish extends WorldObject {
 	/**
-	 * A fish is only special because of its color now!
+	 * A fish is only special because of its color and movement!
 	 */
 	static Color[] COLORS = {
 			Color.red,
-			Color.green,
+			Color.pink,
+			Color.orange,
 			Color.yellow,
-			Color.magenta,
-			Color.blue,
+			Color.green,
 			Color.cyan,
+			Color.blue,
+			Color.magenta,
 			Color.gray,
 			Color.darkGray,
 			Color.lightGray,
-			Color.orange,
-			Color.pink
-			// TODO: (FishGrid) Maybe make a special fish that is more points?
 	};
 	/**
 	 * This is an index into the {@link #COLORS} array.
 	 */
 	int color;
 	/**
-	 * Whether fish is fast/hard or not
+	 * Whether fish is fast/hard to catch or not
 	 */
 	boolean fastScared;
-	
+	/**
+	 * How many points the fish is worth
+	 */
+	int points;
 	/**
 	 * Whether or not this is the player;
 	 */
@@ -59,7 +61,19 @@ public class Fish extends WorldObject {
 	public Fish(int color, World world) {
 		super(world);
 		this.color = color;
-		// probability of being fastScared (harder to catch)
+		// assign points based on color
+		if (color < 4) {
+			// warm colors worth 15
+			this.points = 15;
+		} else if (color < 8) { 
+			// cool colors worth 10
+			this.points = 10;
+		} else {
+			// grays worth 7
+			this.points = 7;
+		}
+		
+		// 20% probability of being fastScared (harder to catch)
 		if (rand.nextDouble() < 0.2) {
 			this.fastScared = true;
 		} else {

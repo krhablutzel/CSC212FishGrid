@@ -158,6 +158,16 @@ public class World {
 	}
 	
 	/**
+	 * Insert a new FallingRock into the world at random.
+	 * @return the FallingRock.
+	 */
+	public FallingRock insertFallingRockRandomly() {
+		FallingRock r = new FallingRock(this);
+		insertRandomly(r);
+		return r;
+	}
+	
+	/**
 	 * Insert a new Fish into the world at random of a specific color.
 	 * @param color - the color of the fish.
 	 * @return the new fish itself.
@@ -185,6 +195,16 @@ public class World {
 	}
 	
 	/**
+	 * Insert a new Heart at random into the world.
+	 * @return the heart!
+	 */
+	public Heart insertHeartRandomly() {
+		Heart heart = new Heart(this);
+		insertRandomly(heart);
+		return heart;
+	}
+	
+	/**
 	 * Determine if a WorldObject can swim to a particular point.
 	 * 
 	 * @param whoIsAsking - the object (not just the player!)
@@ -197,18 +217,19 @@ public class World {
 			return false;
 		}
 		
-		// This will be important.
+		// Player CAN swim onto Fish; others can't
 		boolean isPlayer = whoIsAsking.isPlayer();
 		
 		// We will need to look at who all is in the spot to determine if we can move there.
 		List<WorldObject> inSpot = this.find(x, y);
 		
 		for (WorldObject it : inSpot) {
-			// TODO(FishGrid): Don't let us move over rocks as a Fish.
-			// The other fish shouldn't step "on" the player, the player should step on the other fish.
-			if (it instanceof Snail) {
-				// This if-statement doesn't let anyone step on the Snail.
-				// The Snail(s) are not gonna take it.
+			// Nobody can move over rocks or snails
+			if (it instanceof Rock || it instanceof Snail) {
+				return false;
+			}
+			// Only the player can step on fish
+			if (it instanceof Fish && !isPlayer) {
 				return false;
 			}
 		}
@@ -235,13 +256,57 @@ public class World {
 	public static void objectsFollow(WorldObject target, List<? extends WorldObject> followers) {
 		// TODO(FishGrid) Comment this method!
 		// Q1. What is recentPositions?
+		/**
+		 * recentPositions is an instance variable included in the data of all WorldObjects. It tracks
+		 * the WorldObject's most recent positions when the WorldObject updates its position. These
+		 * positions (of the type IntPoint) are stored in a Deque, which is a list where it's easy
+		 * to add to the front and remove from the back. This is helpful because recentPositions only
+		 * stores the n most recent positions (in this game, n = 64), so when the limit is reached,
+		 * old positions get removed from the back as new positions get added to front.
+		 * (See WorldObject.java)
+		 * 
+		 * We use recentPositions to place followers behind the target along the target's path.
+		 */
+
 		// Q2. What is followers?
+		/**
+		 * Followers is a list of objects that are all some subclass of WorldObject. The followers get
+		 * placed behind the target along the target's path of recent positions.
+		 * 
+		 * We use followers to make Fish in the found list follow behind the player Fish.
+		 */
+		
 		// Q3. What is target?
+		/** 
+		 * Target is some WorldObject to make the followers follow. We use the target's Deque of 
+		 * recentPositions to place the followers behind the target.
+		 * 
+		 * We only ever use the player Fish as the target. We do this to make the found fish follow
+		 * the player. However, in theory, we could change the target and make some objects follow a
+		 * snail, a falling rock, etc.
+		 */
+		
 		// Q4. Why is past = putWhere[i+1]? Why not putWhere[i]?
+		/**
+		 * The first IntPoint in the putWhere list is the target's current position. We want to start
+		 * placing followers at the most recent *now unoccupied* target position. If we used i instead
+		 * of i+1, the first follower would get placed on top of the target.
+		 * 
+		 * If we really wanted to use putWhere.get(i), we could adjust our loop to start counting at 1
+		 * instead of 0, but we'd also need to adjust our stop condition to:
+		 * i < followers.size() + 1 && i < putWhere.size()
+		 */
+		
 		List<IntPoint> putWhere = new ArrayList<>(target.recentPositions);
 		for (int i=0; i < followers.size() && i+1 < putWhere.size(); i++) {
 			// Q5. What is the deal with the two conditions in this for-loop?
 			// Conditions are in the "while" part of this loop.
+			/**
+			 * We assign the ith follower to the (i+1)th recent position as we iterate through these
+			 * lists in parallel, so these conditions stop us before we run off the end of either list.
+			 * With these two positions, the loop stops when we reach the end of the followers list
+			 * or the end of the positions list - whichever comes first.
+			 */
 			
 			IntPoint past = putWhere.get(i+1);
 			followers.get(i).setPosition(past.x, past.y);
