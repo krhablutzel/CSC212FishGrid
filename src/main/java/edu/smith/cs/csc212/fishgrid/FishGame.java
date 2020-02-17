@@ -62,6 +62,8 @@ public class FishGame {
 	 * @param h how tall is the grid?
 	 */
 	public FishGame(int w, int h) {
+		Random rand = ThreadLocalRandom.current();
+
 		world = new World(w, h);
 		
 		missing = new ArrayList<Fish>();
@@ -72,10 +74,8 @@ public class FishGame {
 		home = world.insertFishHome();
 		
 		// Make the rocks! 50% chance of falling
-		// Steal the random number generator from existing world object
-		// TODO: Own Rand - Don't piggyback off the home rand  
 		for (int i=0; i<NUM_ROCKS; i++) {
-			if (home.rand.nextDouble() < 0.5) {
+			if (rand.nextDouble() < 0.5) {
 				world.insertFallingRockRandomly();
 			} else {
 				world.insertRockRandomly();	
@@ -101,11 +101,11 @@ public class FishGame {
 	
 	
 	/**
-	 * How we tell if the game is over: if missingFishLeft() == 0.
+	 * How we tell if the game is over: if missingFishLeft() == 0 and found.
 	 * @return the size of the missing list.
 	 */
 	public int missingFishLeft() {
-		return missing.size();
+		return missing.size() + found.size();
 	}
 	
 	/**
@@ -113,7 +113,6 @@ public class FishGame {
 	 * @return true if the player has won (or maybe lost?).
 	 */
 	public boolean gameOver() {
-		// TODO(FishGrid) We want to bring the fish home before we win!
 		return missing.isEmpty() && found.isEmpty();
 	}
 
@@ -127,14 +126,14 @@ public class FishGame {
 		// All the player's various interactions with the world
 		playerInteracts();
 		
+		// Found fish have a chance of wandering off eventually
+		wanderFollowFish();
+		
 		// Make sure missing fish *do* something.
 		wanderMissingFish();
 		
-		// When fish get added to "found" they will follow the player around.
+		// "found" fish follow the player around.
 		World.objectsFollow(player, found);	
-		
-		// Found fish have a chance of wandering
-		wanderFollowFish();
 		
 		// Random chance of a heart appearing on the board
 		hearts();
@@ -168,16 +167,15 @@ public class FishGame {
 				found.add(justFound);
 				missing.remove(justFound);
 				
-				// Increase score when you find a fish!
-				score += justFound.points;
-				
 			} else if (wo instanceof FishHome) {
 				// Found fish are safe/home
 				safe.addAll(found); // https://www.geeksforgeeks.org/java-util-arraylist-addall-method-java/
 				
-				// Remove fish from world and from found list
+				// Count saved fish towards score!
+				// Also, remove fish from world and from found list
 				for (Fish friend : found) {
-					friend.remove();
+					score += friend.points;
+					friend.remove();					
 				}
 				found.removeAll(found); // https://www.geeksforgeeks.org/arraylist-removeall-method-in-java-with-examples/
 				
@@ -236,8 +234,28 @@ public class FishGame {
 	 * Found fish have a chance of wandering off
 	 */
 	private void wanderFollowFish() {
-		// do a thing
-		// is there a difference between commit and push vs commit? Definitely didn't do the wrong one
+		Random rand = ThreadLocalRandom.current();
+		List<Fish> bored = new ArrayList<>();
+		double wanderChance = 0.05;
+		int attention = 20;
+		
+		for (int i = 0; i < found.size(); i++){
+			// update boredom
+			found.get(i).boredom++;
+
+			if (i == 0) {
+				// first fish doesn't wander
+				continue;
+			} else if (found.get(i).boredom >= attention && rand.nextDouble() < wanderChance) {
+				// Chance of getting bored and wandering after <attention> steps
+				bored.add(found.get(i));
+				found.get(i).boredom = 0; // reset boredom
+			}
+		}
+
+		// move bored fish from found to missing
+		missing.addAll(bored);
+		found.removeAll(bored);
 	}
 
 	/**
@@ -246,8 +264,7 @@ public class FishGame {
 	 * @param y - the y-tile.
 	 */
 	public void click(int x, int y) {
-		// TODO(FishGrid) use this print to debug your World.canSwim changes!
-		System.out.println("Clicked on: "+x+","+y+ " world.canSwim(player,...)="+world.canSwim(player, x, y));
+		System.out.println("Clicked on: "+x+","+y);
 		List<WorldObject> atPoint = world.find(x, y);
 		
 		// remove clicked rocks/fallingRocks
@@ -263,9 +280,9 @@ public class FishGame {
 	 * This has a random chance every step of adding a heart to the game.
 	 */
 	public void hearts() {
+		Random rand = ThreadLocalRandom.current();
 		double heartChance = 0.03;
-		// TODO: Fix Rand here too - Don't piggyback off the player's rand 
-		if (this.player.rand.nextDouble() < heartChance) {
+		if (rand.nextDouble() < heartChance) {
 			world.insertHeartRandomly();
 		}
 	}

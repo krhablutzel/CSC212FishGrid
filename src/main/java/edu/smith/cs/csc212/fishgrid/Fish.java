@@ -41,6 +41,10 @@ public class Fish extends WorldObject {
 	 */
 	int points;
 	/**
+	 * How bored the fish is (when following player)
+	 */
+	int boredom;
+	/**
 	 * Whether or not this is the player;
 	 */
 	boolean player = false;
@@ -61,6 +65,7 @@ public class Fish extends WorldObject {
 	public Fish(int color, World world) {
 		super(world);
 		this.color = color;
+		this.boredom = 0;
 		// assign points based on color
 		if (color < 4) {
 			// warm colors worth 15

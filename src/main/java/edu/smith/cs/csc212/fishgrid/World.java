@@ -254,7 +254,6 @@ public class World {
 	 * @param followers a set of objects to follow the leader.
 	 */
 	public static void objectsFollow(WorldObject target, List<? extends WorldObject> followers) {
-		// TODO(FishGrid) Comment this method!
 		// Q1. What is recentPositions?
 		/**
 		 * recentPositions is an instance variable included in the data of all WorldObjects. It tracks
