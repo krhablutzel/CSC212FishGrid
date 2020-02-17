@@ -237,6 +237,7 @@ public class FishGame {
 	 */
 	private void wanderFollowFish() {
 		// do a thing
+		// is there a difference between commit and push vs commit? Definitely didn't do the wrong one
 	}
 
 	/**
